@@ -1,0 +1,21 @@
+version: "3.8"
+
+services:
+  django_app:
+    build:
+      context: .
+    image: toda_app_compose
+    container_name: toda_app_dj
+    ports:
+      - "8000:8000"
+    environment:
+      - PYTHONUNBUFFERED=1
+    volumes:
+      - .:/app
+    networks:
+      - toda_app_network
+    restart: always
+
+networks:
+  toda_app_network:
+    driver: bridge
