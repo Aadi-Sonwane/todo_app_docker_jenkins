@@ -4,31 +4,42 @@ services:
   django_app:
     build:
       context: .
-    image: toda_app_docker
+    image: toda_app_compose
     container_name: toda_app_dj
     ports:
       - "8000:8000"
     environment:
       - PYTHONUNBUFFERED=1
-      - ALLOWED_HOSTS=127.0.0.1,localhost,0.0.0.0  # Allow access from all platforms
-      - DJANGO_SECRET_KEY=${DJANGO_SECRET_KEY}  # Secret key from .env file
-      - DATABASE_URL=${DATABASE_URL}  # Database URL from .env file
     volumes:
       - .:/app
+    restart: always
     depends_on:
       - db
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8000 || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    networks:
+      - toda_app_network
 
   db:
-    image: mysql
-    container_name: mysql_db
+    image: mysql:5.7
+    container_name: db_cont
     environment:
-      MYSQL_ROOT_PASSWORD: rootpassword
-      MYSQL_DATABASE: toda_app_db
+      - MYSQL_ROOT_PASSWORD=rootpassword
+      - MYSQL_DATABASE=toda_app_db
     volumes:
-      - ./mysql-data:/var/lib/mysql
-    ports:
-      - "3306:3306"
+      - db_data:/var/lib/mysql
+    networks:
+      - toda_app_network
+    restart: always
 
 networks:
-  default:
+  toda_app_network:
     driver: bridge
+
+volumes:
+  db_data:
+
