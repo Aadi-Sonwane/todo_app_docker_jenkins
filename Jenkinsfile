@@ -7,6 +7,7 @@ pipeline {
             steps {
                 script{
                    first()
+                    echo "We are testing the code"
                 }
             }
         }
